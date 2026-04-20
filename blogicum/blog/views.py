@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
 from blog.models import Post, Category
+from .constants import POSTS_COUNT
 
 
 def index(request):
@@ -10,7 +11,7 @@ def index(request):
         pub_date__lte=timezone.now(),
         is_published=True,
         category__is_published=True
-    ).select_related('category').order_by('-pub_date')[:5]
+    ).select_related('category').order_by('-pub_date')[:POSTS_COUNT]
     context = {'post_list': post_list}
     return render(request, template, context)
 
@@ -37,8 +38,7 @@ def category_posts(request, category_slug):
         slug=category_slug
     )
 
-    post_list = Post.objects.filter(
-        category=category,
+    post_list = category.posts.filter(
         is_published=True,
         pub_date__lte=timezone.now()
     )
